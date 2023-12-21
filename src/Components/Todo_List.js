@@ -13,32 +13,70 @@ import Todo from './Todo';
 import Grid from '@mui/material/Unstable_Grid2';
 import TextField from '@mui/material/TextField';
 import SendIcon from '@mui/icons-material/Send';
+import { useState ,useContext  } from 'react';
+import { ToDoContext } from "../ContextFolder/Context"
 import { v4 as uuidv4 } from 'uuid';
-import { useState } from 'react';
-
-const Arrays_todo=[
- {id :uuidv4()  , title:"Read book" , details:"write or read write or read  " , iscomplite: false },
- {id :uuidv4()  , title:"Read " , details:"write or read write or read " , iscomplite: false },
- {id :uuidv4()  , title:"Read B" , details:"write or read write or read " , iscomplite: false },
- {id :uuidv4()  , title:"Read B" , details:"write or read write or read " , iscomplite: false },
- {id :uuidv4()  , title:"Read B" , details:"write or read write or read " , iscomplite: false },
- {id :uuidv4()  , title:"Read B" , details:"write or read write or read " , iscomplite: false },
- {id :uuidv4()  , title:"Read B" , details:"write or read write or read " , iscomplite: false },
- {id :uuidv4()  , title:"Read B" , details:"write or read write or read " , iscomplite: false }
-]
 
 
 export default function Todo_List() {
-  const[inputToDo , setinputToDo ] =useState(Arrays_todo)   
-  const[AddinputToDo , setAddinputToDo] =useState("")
-let todolistmap =inputToDo.map(e => 
+  // const [inpu]
+ 
+  const {inputToDo ,setinputToDo }= useContext(ToDoContext);
+  const[AddinputToDo , setAddinputToDo] =useState("") ;
+  const [addtodFinadhed ,setaddtodFinadhed]=useState("all")
+
+  const iscomplite_A = inputToDo.filter((t)=> {
+    return t.iscomplite 
+     })
+
+  const non_iscomplite_A = inputToDo.filter((t)=> {
+    return !t.iscomplite 
+      })
+
+   let TransferCompletedTasks = inputToDo ;
+  if(addtodFinadhed === "Complated" )
   {
-    return( <Todo key={e.id} title={e.title} detail={e.details}  />)
-  })
-  function handelchengebutton()
-  {
-    alert("welcome to my web site ")
+    TransferCompletedTasks = iscomplite_A ;
   }
+   else if(addtodFinadhed === "non-Complated")
+   {
+    TransferCompletedTasks = non_iscomplite_A ;
+   }
+   else{
+       TransferCompletedTasks = inputToDo ;
+   }
+   let todolistmap =TransferCompletedTasks.map(event => 
+    {
+      return( <Todo key={event.id} todoObject={event}  />)
+    })
+
+  function showisComplitade(t)
+  {
+    setaddtodFinadhed(t.target.value)
+  }
+
+ 
+ 
+ 
+  /////////// function to add component todo_list
+  function handelchengebutton()   
+  {
+    const addobjectinputs =
+    {
+       id : uuidv4() ,
+       title :AddinputToDo,
+       details: "",
+       iscomplite: false
+    }
+ 
+  const TodoArrya=[...inputToDo ,addobjectinputs]   
+  setinputToDo(TodoArrya)
+  setAddinputToDo("")
+  localStorage.setItem("Todos" ,JSON.stringify(TodoArrya)) // to save value whene reload
+}
+
+// **********************************
+
 
 const card = (
   <React.Fragment>
@@ -51,18 +89,19 @@ const card = (
      {/* button  */}
      <ToggleButtonGroup 
       style={{display:"flex" ,justifyContent:"center" , alignContent:"center" }}
-    //   value={alignment}
+      value={addtodFinadhed}
+      onChange={showisComplitade}
       exclusive
     //   onChange={handleAlignment}
       aria-label="text alignment"
     >
-      <ToggleButton value="left" aria-label="left aligned" style={{color:"  #fac1de"}}> 
+      <ToggleButton value="all" aria-label="left aligned" style={{color:"  #fac1de"}}> 
         All
       </ToggleButton>
-      <ToggleButton value="center" aria-label="centered"  style={{color:"  #fac1de"}}>
+      <ToggleButton value="Complated" aria-label="centered"  style={{color:"  #fac1de"}}>
        finished
       </ToggleButton>
-      <ToggleButton value="right" aria-label="right aligned"  style={{color:"  #fac1de"}}>
+      <ToggleButton value="non-Complated" aria-label="right aligned"  style={{color:"  #fac1de"}}>
       Unfinished
       </ToggleButton>
     </ToggleButtonGroup>
@@ -71,19 +110,20 @@ const card = (
      {/*INPUT AND + ADD BUTTON  */}
            
      <Grid container  sx={{  margin:"18px 25px "}}  spacing={1}> 
-         <Grid  xs={10} fontStyle={{background:"#d3a0f5de"   }}    >
+        <Grid  xs={8} fontStyle={{background:"#d3a0f5de"   }}    >
          <TextField
-        style={{width:"100%" }}
+        style={{width:"100%"}}
         id="demo-helper-text-aligned"
         label="Name"
-        value={AddinputToDo }
+        value={AddinputToDo}
         onChange={(event)=>{
         setAddinputToDo(event.target.value)
         }}
-      />
+        />
+    
         </Grid> 
-        <Grid  xs={2} >  
-        <Button variant="contained" endIcon={<SendIcon />} style={{width:"100%" , height:"100%" , background:"#520f80a2" }} onClick={() =>{handelchengebutton()}}  >
+        <Grid  xs={4}  >  
+        <Button variant="contained" endIcon={<SendIcon />} style={{width:"100%" , height:"100%" , background:"#830a7dc0" }} onClick={() =>{handelchengebutton()}}  >
          addition
         </Button>
         </Grid> 
@@ -93,6 +133,8 @@ const card = (
     </CardContent>
   </React.Fragment>
 );
+
+ 
 
   return (
      <Container maxWidth="lg"  height="auto" >
